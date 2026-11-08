@@ -110,14 +110,16 @@ thermalSphereDEMSystem::thermalSphereDEMSystem(
     particles_.reset();
     spheres_.reset();
 
-    auto thermalProps = thermalProperty(
+    // A member, not a local: the shape created below keeps a const
+    // reference to it, which would dangle once this constructor returns.
+    thermalProps_ = makeUnique<thermalProperty>(
         propertyFile__,
         Control().caseSetup().path());
 
     auto* combinedShape = new thermalSphereShape(
         shapeFile__,
         &Control().caseSetup(),
-        thermalProps);
+        *thermalProps_);
     spheres_ = uniquePtr<sphereShape>(combinedShape);
 
     // thermalSphereFluidParticles' constructor already initializes
